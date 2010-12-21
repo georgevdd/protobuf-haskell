@@ -73,6 +73,18 @@ You'll find a complete guide to writing `.proto` files – including all the pos
 
 == Compiling Your Protocol Buffers ==
 
+Now that you have a `.proto`, the next thing you need to do is generate the classes you'll need to read and write `AddressBook` (and hence `Person` and `PhoneNumber`) messages. To do this, you need to run the Haskell protocol buffer compiler, `hprotoc`, on your `.proto`:
+  # If you haven't installed the compiler, do so. This can normally be done by running:
+    {{{
+cabal install hprotoc
+}}}
+  # Now run the compiler, specifying the source directory (where your application's source code lives – the current directory is used if you don't provide a value), the destination directory (where you want the generated code to go; often the same as `$SRC_DIR`), and the path to your `.proto`. In this case, you...:
+    {{{
+hprotoc -I=$SRC_DIR --haskell_out=$DST_DIR $SRC_DIR/addressbook.proto
+}}}
+Because you want Haskell modules, you use the `--haskell_out` option – similar options are provided for other supported languages.
+This generates `AddressBookProtos.hs` in your specified destination directory, along with a directory called `AddressBookProtos` that contains a module for each message and enum declared in the input `.proto` files.
+
 == The Protocol Buffer API ==
 
 == Writing a Message ==
