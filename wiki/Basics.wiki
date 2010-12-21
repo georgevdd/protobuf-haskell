@@ -153,6 +153,19 @@ main = print john
 
 === Standard Message Classes ===
 
+Each generated message type is in a number of type classes, including:
+
+  * `Show`, `Eq`, `Ord` and `Typeable`, for supporting common operations on records, including introspection;
+  * `Mergeable`, which defines a `Monoid`-like interface with methods `mergeEmpty` and `mergeAppend`;
+  * `Default`, which provides an instance of the type called `defaultValue` whose fields are all (you guessed it) default values.
+
+=== Parsing and Serialization ===
+
+Finally, each protocol buffer type is in the class `Wire` that supports writing and reading messages of the type using the protocol buffer [http://code.google.com/apis/protocolbuffers/docs/encoding.html binary format]. The module `Text.ProtocolBuffers.WireMessage` defines various functions for encoding and decoding messages, including:
+
+  * `messagePut :: t -> Data.ByteString.Lazy.Internal.ByteString`: serializes a message into a byte string;
+  * `messageGet :: Data.ByteString.Lazy.Internal.ByteString -> Either String (msg, Data.ByteString.Lazy.Internal.ByteString)`: parses a protocol message, giving an error message or a successfully parsed record.
+
 == Writing a Message ==
 
 == Reading a Message ==
