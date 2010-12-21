@@ -82,10 +82,45 @@ cabal install hprotoc
     {{{
 hprotoc -I=$SRC_DIR --haskell_out=$DST_DIR $SRC_DIR/addressbook.proto
 }}}
-Because you want Haskell modules, you use the `--haskell_out` option – similar options are provided for other supported languages.
+    Because you want Haskell modules, you use the `--haskell_out` option – similar options are provided for other supported languages.
+
 This generates `AddressBookProtos.hs` in your specified destination directory, along with a directory called `AddressBookProtos` that contains a module for each message and enum declared in the input `.proto` files.
 
 == The Protocol Buffer API ==
+
+Let's look at some of the generated code and see what types and functions the compiler has created for you. If you look in `AddressBookProtos/` you can see that it contains a module for each message you specified in addressbook.proto. Each module declares a data type that you use to create instances of the corresponding message or enum.
+
+Each data type has auto-generated fields for each field of the message. The generated Haskell field name is the same as the source field name, except where that name is a Haskell keyword (such as `type`) in which case a `'` (prime, or single-quote) is added to it to avoid syntax errors.
+
+Here is the data type for the Person class:
+
+{{{
+data Person = Person {
+  name :: P'.Utf8,
+  id :: P'.Int32,
+  email :: P'.Maybe P'.Utf8,
+  phone :: P'.Seq AddressBookProtos.Person.PhoneNumber
+} deriving (P'.Show, P'.Eq, P'.Ord, P'.Typeable)
+}}}
+
+As you can see, the types used in the generated code are all imported qualified by `P'`; this ensures that there can never be a collision between the name of one of these types and the name of a generated type.
+
+Required fields are translated directly into fields of matching Haskell types. Optional fields correspond to `Maybe t`. Repeated fields become `Seq t`.
+
+For more information on exactly what fields the protocol compiler generates for any particular field definition, see the (forthcoming) Haskell generated code reference.
+
+=== Enums and Nested Classes ===
+
+The generated code declares a `PhoneType` structure, in the module `AddressBookProtos.Person.PhoneType`:
+
+{{{
+data PhoneType = MOBILE
+               | HOME
+               | WORK
+               deriving (P'.Read, P'.Show, P'.Eq, P'.Ord, P'.Typeable)
+}}}
+
+The nested type `Person.PhoneNumber` becomes (as you might expect by now) a data structure called `PhoneNumber` declared in the module `AddressBookProtos.Person.PhoneNumber`.
 
 == Writing a Message ==
 
