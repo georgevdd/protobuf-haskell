@@ -164,7 +164,7 @@ Each generated message type is in a number of type classes, including:
 Finally, each protocol buffer type is in the class `Wire` that supports writing and reading messages of the type using the protocol buffer [http://code.google.com/apis/protocolbuffers/docs/encoding.html binary format]. The module `Text.ProtocolBuffers.WireMessage` defines various functions for encoding and decoding messages, including:
 
   * `messagePut :: t -> Data.ByteString.Lazy.Internal.ByteString`: serializes a message into a byte string;
-  * `messageGet :: Data.ByteString.Lazy.Internal.ByteString -> Either String (msg, Data.ByteString.Lazy.Internal.ByteString)`: parses a protocol message, giving an error message or a successfully parsed record.
+  * `messageGet :: Data.ByteString.Lazy.Internal.ByteString -> Either String (msg, Data.ByteString.Lazy.Internal.ByteString)`: parses a protocol message, giving either an error message or a successfully parsed record plus any leftover bytes from the input.
 
 == Writing a Message ==
 
