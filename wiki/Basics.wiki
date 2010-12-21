@@ -6,8 +6,7 @@ This tutorial provides a basic Haskell programmer's introduction to working with
   * Define message formats in a `.proto` file.
   * Use the protocol buffer compiler.
   * Use the Haskell protocol buffer API to write and read messages.
-This isn't a comprehensive guide to using protocol buffers in Haskell. For more detailed reference information, see the [http://code.google.com/apis/protocolbuffers/docs/proto.html Protocol Buffer Language Guide],
-the [http://hackage.haskell.org/package/protocol-buffers Haskell API Reference], the (forthcoming) Haskell Generated Code Guide, and the [http://code.google.com/apis/protocolbuffers/docs/encoding.html Encoding Reference].
+This isn't a comprehensive guide to using protocol buffers in Haskell. For more detailed reference information, see the [http://code.google.com/apis/protocolbuffers/docs/proto.html Protocol Buffer Language Guide], the [http://hackage.haskell.org/package/protocol-buffers Haskell API Reference], the (forthcoming) Haskell Generated Code Guide, and the [http://code.google.com/apis/protocolbuffers/docs/encoding.html Encoding Reference].
 
 == Why Use Protocol Buffers? ==
 
