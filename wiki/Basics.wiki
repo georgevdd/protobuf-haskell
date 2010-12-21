@@ -158,7 +158,7 @@ main = print john
 Each generated message type is in a number of type classes, including:
 
   * `Show`, `Eq`, `Ord` and `Typeable`, for supporting common operations on records, including introspection;
-  * `Mergeable`, which defines a `Monoid`-like interface with methods `mergeEmpty` and `mergeAppend`;
+  * `Mergeable`, which defines a not-quite-`Monoid`-like interface with methods `mergeEmpty` and `mergeAppend`;
   * `Default`, which provides an instance of the type called `defaultValue` whose fields are all (you guessed it) default values.
 
 === Parsing and Serialization ===
