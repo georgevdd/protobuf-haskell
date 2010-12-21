@@ -18,6 +18,8 @@ With protocol buffers, you write a `.proto` description of the data structure yo
 
 == Where to Find the Example Code ==
 
+The example code is included in the main Protocol Buffers source code package, under the "examples" directory. [http://code.google.com/p/protobuf/downloads/ Download it here].
+
 == Defining Your Protocol Format ==
 
 To create your address book application, you'll need to start with a `.proto` file. The definitions in a `.proto` file are simple: you add a message for each data structure you want to serialize, then specify a name and a type for each field in the message. Here is the `.proto` file that defines your messages, `addressbook.proto`.
