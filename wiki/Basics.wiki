@@ -90,7 +90,7 @@ This generates `AddressBookProtos.hs` in your specified destination directory, a
 
 Let's look at some of the generated code and see what types and functions the compiler has created for you. If you look in `AddressBookProtos/` you can see that it contains a module for each message you specified in addressbook.proto. Each module declares a data type that you use to create instances of the corresponding message or enum.
 
-Each data type has auto-generated fields for each field of the message. The generated Haskell field name is the same as the source field name, except where that name is a Haskell keyword (such as `type`) in which case a `'` (prime, or single-quote) is added to it to avoid syntax errors.
+Each data type has auto-generated fields for each field of the message. The generated Haskell field name is the same as the source field name, except where that name is a Haskell keyword (such as `type`) in which case a `'` (prime, or single-quote) is appended, to avoid syntax errors.
 
 Here is the data type for the Person class:
 
@@ -121,6 +121,37 @@ data PhoneType = MOBILE
 }}}
 
 The nested type `Person.PhoneNumber` becomes (as you might expect by now) a data structure called `PhoneNumber` declared in the module `AddressBookProtos.Person.PhoneNumber`.
+
+=== Creating Messages ===
+
+A message can be constructed just like any other Haskell data structure. It's often useful to use record syntax for this. For example, here's how you would create a `Person` structure:
+
+{{{
+module Main where
+
+import Data.Sequence
+import Text.ProtocolBuffers.Header
+
+import AddressBookProtos.Person
+import AddressBookProtos.Person.PhoneNumber
+import AddressBookProtos.Person.PhoneType
+
+john = Person {
+  AddressBookProtos.Person.id = 1234,
+  name = uFromString "John Doe",
+  email = Just $ uFromString "jdoe@example.com",
+  phone = fromList [
+    PhoneNumber {
+      number = uFromString "555-4321",
+      type' = Just HOME
+    }
+  ]
+}
+
+main = print john
+}}}
+
+=== Standard Message Classes ===
 
 == Writing a Message ==
 
