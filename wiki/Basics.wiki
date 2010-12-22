@@ -129,15 +129,6 @@ The nested type `Person.PhoneNumber` becomes (as you might expect by now) a data
 A message can be constructed just like any other Haskell data structure. It's often useful to use record syntax for this. For example, here's how you would create a `Person` structure:
 
 {{{
-module Main where
-
-import Data.Sequence
-import Text.ProtocolBuffers.Header
-
-import AddressBookProtos.Person
-import AddressBookProtos.Person.PhoneNumber
-import AddressBookProtos.Person.PhoneType
-
 john = Person {
   AddressBookProtos.Person.id = 1234,
   name = uFromString "John Doe",
@@ -149,8 +140,6 @@ john = Person {
     }
   ]
 }
-
-main = print john
 }}}
 
 === Standard Message Classes ===
@@ -170,7 +159,169 @@ Finally, each protocol buffer type is in the class `Wire` that supports writing 
 
 == Writing a Message ==
 
+Now let's try using your protocol buffer modules. The first thing you want your address book application to be able to do is write personal details to your address book file. To do this, you need to create and populate instances of your protocol buffer types and then write them to a file.
+Here is a program which reads an `AddressBook` from a file, adds one new `Person` to it based on user input, and writes the new `AddressBook` back out to the file again.
+
+{{{
+module Main where
+
+import Control.Monad (when)
+import qualified Data.ByteString.Lazy as ByteString (
+       readFile, writeFile, length)
+import Data.ByteString.Lazy.UTF8 (fromString, toString)
+import Data.Sequence ((><), fromList)
+import System.Environment (getArgs, getProgName)
+import System.Directory (doesFileExist)
+import System.IO (stdout, hFlush)
+
+import Text.ProtocolBuffers.Header (defaultValue, uFromString)
+import Text.ProtocolBuffers.WireMessage (messageGet, messagePut)
+
+import AddressBookProtos.AddressBook
+import AddressBookProtos.Person
+import AddressBookProtos.Person.PhoneNumber
+import AddressBookProtos.Person.PhoneType
+
+-- | Fills in a Person message based on user input.
+promptForAddress :: IO Person
+promptForAddress = do
+  putStr "Enter person ID number: " >> hFlush stdout
+  id' <- readLn
+
+  putStr "Enter name: " >> hFlush stdout
+  name <- getLine
+
+  putStr "Enter email address (blank for none): " >> hFlush stdout
+  email_input <- getLine
+  let email = if null email_input then Nothing else Just email_input
+
+  phones <- promptForPhones []
+
+  return Person {
+    AddressBookProtos.Person.id = id',
+    name = uFromString name,
+    email = fmap uFromString $ email,
+    phone = fromList phones
+  }
+
+  where
+    promptForPhones list_so_far = do
+      putStr "Enter a phone number (or leave blank to finish): "
+      hFlush stdout
+      number <- getLine
+      if null number
+       then return $ reverse list_so_far
+       else do
+        putStr "Is this a mobile, home or work phone? " >> hFlush stdout
+        type_input <- getLine
+        let type' = case type_input of
+                      "mobile" -> Just MOBILE
+                      "home" -> Just HOME
+                      "work" -> Just WORK
+                      otherwise -> Nothing
+        when (type' == Nothing) $ putStrLn "Unknown phone type. Using default."
+        let new_number = PhoneNumber {
+          number = uFromString number,
+          type' = type'
+        }
+        promptForPhones $ new_number : list_so_far
+
+-- | Main function: Reads the entire address book from a file,
+--   adds one person based on user input, then writes it back out
+--   to the same file.
+main = do
+  args <- getArgs
+  when (length args /= 1) $ do
+    prog_name <- getProgName
+    fail $ "Usage: " ++ prog_name ++ " ADDRESS_BOOK_FILE"
+
+  let filename = head args
+  address_book_exists <- doesFileExist filename
+
+  -- Read the existing address book (if any).
+  address_book <-
+    if address_book_exists
+    then do
+      input <- ByteString.readFile filename
+      case messageGet input of
+         Right (address_book, x) | ByteString.length x == 0 ->
+             return address_book
+         Right (address_book, x) | ByteString.length x /= 0 ->
+             error $ "Failed to parse address book fully."
+         Left error_message ->
+             error $ "Failed to parse address book." ++ error_message
+    else do
+      putStrLn $ filename ++ ": File not found. Creating a new file."
+      return defaultValue
+
+  -- Add an address.
+  new_person <- promptForAddress
+  let new_address_book = address_book {
+    person = person address_book >< fromList [new_person]
+  }
+
+  -- Write the new address book out to disk
+  ByteString.writeFile filename $ messagePut new_address_book
+}}}
+
 == Reading a Message ==
+
+Of course, an address book wouldn't be much use if you couldn't get any information out of it! This example reads the file created by the above example and prints all the information in it.
+
+{{{
+module Main where
+
+import Control.Monad (when)
+import qualified Data.ByteString.Lazy as ByteString (
+       readFile, writeFile, length)
+import Data.Foldable (toList)
+import System.Environment (getArgs, getProgName)
+
+import Text.ProtocolBuffers.WireMessage (messageGet)
+
+import AddressBookProtos.AddressBook
+import AddressBookProtos.Person
+import AddressBookProtos.Person.PhoneNumber
+import AddressBookProtos.Person.PhoneType
+
+-- | Formats info about a Person.
+showPerson :: Person -> String
+showPerson p = unlines $ [
+  "Person ID: " ++ show (AddressBookProtos.Person.id p),
+  "  Name: " ++ show (name p),
+  "  E-mail address: " ++ show (email p)
+  ] ++ map showNumber (toList $ phone p)
+  where
+    showNumber (PhoneNumber number type') =
+      (case type' of
+                  Just MOBILE -> format "Mobile"
+                  Just HOME -> format "Home"
+                  Just WORK -> format "Work"
+                  otherwise -> "") ++ show number
+    format type_str = "  " ++ type_str ++ " phone #: "
+
+-- | Main function: Reads the entire address book from a file
+--   and prints all the information inside.
+main = do
+  args <- getArgs
+  when (length args /= 1) $ do
+    prog_name <- getProgName
+    fail $ "Usage: " ++ prog_name ++ " ADDRESS_BOOK_FILE"
+
+  let filename = head args
+
+  -- Reads the existing address book.
+  input <- ByteString.readFile filename
+  address_book <- case messageGet input of
+    Right (address_book, x) | ByteString.length x == 0 ->
+             return address_book
+    Right (address_book, x) | ByteString.length x /= 0 ->
+             error $ "Failed to parse address book fully."
+    Left error_message ->
+             error $ "Failed to parse address book." ++ error_message
+
+  mapM_ (putStr . showPerson) (toList $ person address_book)
+}}}
 
 == Extending a Protocol Buffer ==
 
