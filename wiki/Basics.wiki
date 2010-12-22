@@ -122,6 +122,8 @@ data PhoneType = MOBILE
                deriving (P'.Read, P'.Show, P'.Eq, P'.Ord, P'.Typeable)
 }}}
 
+Types such as this which, are generated from enum declarations in the source, are members of the `Ord`, `Bounded` and `Enum` type classes.
+
 The nested type `Person.PhoneNumber` becomes (as you might expect by now) a data structure called `PhoneNumber` declared in the module `AddressBookProtos.Person.PhoneNumber`.
 
 === Creating Messages ===
@@ -338,3 +340,9 @@ If you follow these rules, old code will happily read new messages and simply ig
 == Optimization Tips ==
 
 == Advanced Usage ==
+
+Protocol buffers have uses that go beyond simple accessors and serialization. Be sure to explore the [http://hackage.haskell.org/package/protocol-buffers Haskell API reference] to see what else you can do with them.
+
+One key feature provided by protocol message classes is _reflection_. You can iterate over the fields of a message and manipulate their values without writing your code against any specific message type. One very useful way to use reflection is for converting protocol messages to and from other encodings, such as XML or JSON. A more advanced use of reflection might be to find differences between two messages of the same type, or to develop a sort of "regular expressions for protocol messages" in which you can write expressions that match certain message contents. If you use your imagination, it's possible to apply Protocol Buffers to a much wider range of problems than you might initially expect!
+
+Reflection is provided through message types being members of the `ReflectDescriptor` type class.
