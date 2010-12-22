@@ -344,8 +344,6 @@ Sooner or later after you release the code that uses your protocol buffer, you w
 
 If you follow these rules, old code will happily read new messages and simply ignore any new fields. To the old code, optional fields that were deleted will simply have their default value, and deleted repeated fields will be empty. New code will also transparently read old messages. However, keep in mind that new optional fields will not be present in old messages, so you will need to either check explicitly whether they're set with `has_`, or provide a reasonable default value in your `.proto` file with `[default = value]` after the tag number. If the default value is not specified for an optional element, a type-specific default value is used instead: for strings, the default value is the empty string. For booleans, the default value is false. For numeric types, the default value is zero. Note also that if you added a new repeated field, your new code will not be able to tell whether it was left empty (by new code) or never set at all (by old code) since there is no `has_` flag for it.
 
-== Optimization Tips ==
-
 == Advanced Usage ==
 
 Protocol buffers have uses that go beyond simple accessors and serialization. Be sure to explore the [http://hackage.haskell.org/package/protocol-buffers Haskell API reference] to see what else you can do with them.
@@ -353,3 +351,7 @@ Protocol buffers have uses that go beyond simple accessors and serialization. Be
 One key feature provided by protocol message classes is _reflection_. You can iterate over the fields of a message and manipulate their values without writing your code against any specific message type. One very useful way to use reflection is for converting protocol messages to and from other encodings, such as XML or JSON. A more advanced use of reflection might be to find differences between two messages of the same type, or to develop a sort of "regular expressions for protocol messages" in which you can write expressions that match certain message contents. If you use your imagination, it's possible to apply Protocol Buffers to a much wider range of problems than you might initially expect!
 
 Messages and enums provide reflection through membership of the `ReflectDescriptor` and `ReflectEnum` [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Reflections.html type classes].
+
+== About This Tutorial ==
+
+This tutorial is a 'port' to Haskell of the tutorials for languages like [http://code.google.com/apis/protocolbuffers/docs/cpptutorial.html C++] that are available on the main Protocol Buffers site. It was produced with the permission of the author of those tutorials, but not by that author. Although I work at Google and Google technically owns this tutorial, it is not in any useful sense affiliated with the main Protocol Buffers project, and Google does not officially support the Haskell implementation of Protocol Buffers any more than it supports implementations in [http://code.google.com/p/protobuf/wiki/ThirdPartyAddOns other languages]. Any errata in this tutorial should be attributed to me, George van den Driessche.
