@@ -124,7 +124,7 @@ data PhoneType = MOBILE
 
 Types such as this which, are generated from enum declarations in the source, are members of the `Ord`, `Bounded` and `Enum` type classes.
 
-The nested type `Person.PhoneNumber` becomes (as you might expect by now) a data structure called `PhoneNumber` declared in the module `AddressBookProtos.Person.PhoneNumber`.
+The nested type `Person.PhoneNumber` becomes a data structure called `PhoneNumber` declared in the module `AddressBookProtos.Person.PhoneNumber`.
 
 === Creating Messages ===
 
