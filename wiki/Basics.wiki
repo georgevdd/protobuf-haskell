@@ -352,4 +352,4 @@ Protocol buffers have uses that go beyond simple accessors and serialization. Be
 
 One key feature provided by protocol message classes is _reflection_. You can iterate over the fields of a message and manipulate their values without writing your code against any specific message type. One very useful way to use reflection is for converting protocol messages to and from other encodings, such as XML or JSON. A more advanced use of reflection might be to find differences between two messages of the same type, or to develop a sort of "regular expressions for protocol messages" in which you can write expressions that match certain message contents. If you use your imagination, it's possible to apply Protocol Buffers to a much wider range of problems than you might initially expect!
 
-Reflection is provided through message types being members of the `ReflectDescriptor` type class.
+Messages and enums provide reflection through membership of the `ReflectDescriptor` and `ReflectEnum` [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Reflections.html type classes].
