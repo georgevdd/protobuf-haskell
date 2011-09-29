@@ -18,12 +18,12 @@ hprotoc generates a data type `Foo` with a single record-style constructor. `Foo
   * `Ord`;
   * `Typeable`.
 `Foo` is also a member of the following type classes:
-  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Basic.html#t:Mergeable Text.ProtocolBuffers.Basic.Mergeable] (providing `mergeAppend`);
-  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Basic.html#t:Default Text.ProtocolBuffers.Basic.Default] (providing `defaultValue`);
-  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-WireMessage.html#t:Wire Text.ProtocolBuffers.WireMessage.Wire]
-  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:MessageAPI Text.ProtocolBuffers.Extensions.MessageAPI]
-  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:GPB Text.ProtocolBuffers.Extensions.GPB]
-  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Reflections.html#t:ReflectDescriptor Text.ProtocolBuffers.Reflections.ReflectDescriptor]
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Basic.html#t:Mergeable Text.ProtocolBuffers.Basic.Mergeable] (providing `mergeAppend` for merging the contents of two messages);
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Basic.html#t:Default Text.ProtocolBuffers.Basic.Default] (providing `defaultValue`, a `Foo` whose fields all have their default values);
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-WireMessage.html#t:Wire Text.ProtocolBuffers.WireMessage.Wire] (providing serialization and deserialization);
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:GPB Text.ProtocolBuffers.Extensions.GPB] (a convenient shorthand for all the above type classes);
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:MessageAPI Text.ProtocolBuffers.Extensions.MessageAPI] (providing convenient access to fields);
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Reflections.html#t:ReflectDescriptor Text.ProtocolBuffers.Reflections.ReflectDescriptor] (allowing reflection of the structure of the data type, including the tag numbers of its fields).
 
 = Fields =
 
