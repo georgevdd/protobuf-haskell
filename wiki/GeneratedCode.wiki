@@ -18,9 +18,9 @@ hprotoc generates a data type `Foo` with a single record-style constructor. `Foo
   * `Ord`;
   * `Typeable`.
 `Foo` is also a member of the following type classes:
-  * `Text.ProtocolBuffers.Header.Mergeable` (providing `mergeAppend`);
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Basic.html#t:Mergeable Text.ProtocolBuffers.Basic.Mergeable] (providing `mergeAppend`);
   * `Text.ProtocolBuffers.Header.Default` (providing `defaultValue`);
-  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-WireMessage.html#t:Wire Text.ProtocolBuffers.Header.Wire]
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-WireMessage.html#t:Wire Text.ProtocolBuffers.WireMessage.Wire]
   * `Text.ProtocolBuffers.Header.MessageAPI`
   * `Text.ProtocolBuffers.Header.GPB`
   * `Text.ProtocolBuffers.Header.ReflectDescriptor`
