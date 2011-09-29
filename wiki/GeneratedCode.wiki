@@ -26,6 +26,16 @@ hprotoc generates a data type `Foo` with a single record-style constructor. `Foo
 
 = Fields =
 
+Each field declared in a message has a label, a type and a name. The corresponding generated Haskell record field has a type based on the source type and label, as described by the following two tables:
+
+|| Source Label || Haskell Type Constructor ||
+|| required || a ||
+|| optional || Maybe a ||
+|| repeated || Seq a ||
+
+|| Source Type || Haskell Type ||
+|| string || Utf8 ||
+
 = Enumerations =
 
 = Extensions =
