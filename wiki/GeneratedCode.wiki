@@ -22,7 +22,6 @@ hprotoc generates a data type `Foo` with a single record-style constructor. `Foo
   * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Basic.html#t:Default Text.ProtocolBuffers.Basic.Default] (providing `defaultValue`, a `Foo` whose fields all have their default values);
   * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-WireMessage.html#t:Wire Text.ProtocolBuffers.WireMessage.Wire] (providing serialization and deserialization);
   * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:GPB Text.ProtocolBuffers.Extensions.GPB] (a convenient shorthand for all the above type classes);
-  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:MessageAPI Text.ProtocolBuffers.Extensions.MessageAPI] (providing convenient access to fields);
   * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Reflections.html#t:ReflectDescriptor Text.ProtocolBuffers.Reflections.ReflectDescriptor] (allowing reflection of the structure of the data type, including the tag numbers of its fields).
 
 = Fields =
@@ -30,5 +29,14 @@ hprotoc generates a data type `Foo` with a single record-style constructor. `Foo
 = Enumerations =
 
 = Extensions =
+
+If a message `Foo` extends another message:
+{{{
+(TODO)
+}}}
+then `Foo` is an instance of one more type class:
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:MessageAPI Text.ProtocolBuffers.Extensions.MessageAPI].
+
+
 
 = Services =
