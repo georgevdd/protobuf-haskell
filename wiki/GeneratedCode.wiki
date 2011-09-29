@@ -19,11 +19,11 @@ hprotoc generates a data type `Foo` with a single record-style constructor. `Foo
   * `Typeable`.
 `Foo` is also a member of the following type classes:
   * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Basic.html#t:Mergeable Text.ProtocolBuffers.Basic.Mergeable] (providing `mergeAppend`);
-  * `Text.ProtocolBuffers.Header.Default` (providing `defaultValue`);
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Basic.html#t:Default Text.ProtocolBuffers.Basic.Default] (providing `defaultValue`);
   * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-WireMessage.html#t:Wire Text.ProtocolBuffers.WireMessage.Wire]
-  * `Text.ProtocolBuffers.Header.MessageAPI`
-  * `Text.ProtocolBuffers.Header.GPB`
-  * `Text.ProtocolBuffers.Header.ReflectDescriptor`
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:MessageAPI Text.ProtocolBuffers.Extensions.MessageAPI]
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:GPB Text.ProtocolBuffers.Extensions.GPB]
+  * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Reflections.html#t:ReflectDescriptor Text.ProtocolBuffers.Reflections.ReflectDescriptor]
 
 = Fields =
 
