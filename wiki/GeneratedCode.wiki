@@ -4,6 +4,14 @@
 
 = Compiler Invocation =
 
+{{{
+hprotoc \
+  --prefix=MyProtos \
+  --proto_path=protos \
+  --haskell_out=gen \
+  protos/server/addressbook.proto
+}}}
+
 = Packages =
 
 = Messages =
