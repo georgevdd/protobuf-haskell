@@ -14,6 +14,9 @@ message Foo {
 }
 
 enum Bar {
+  Crowbar = 1;
+  Divebar = 2;
+  Wunderbar = 3;
 }
 
 }}}
@@ -23,10 +26,15 @@ You invoke the compiler as follows:
 {{{
 hprotoc \
   --prefix=MyProtos \
-  --proto_path=protos \
   --haskell_out=gen \
-  protos/server/addressbook.proto
+  protos/server/example.proto
 }}}
+
+`hprotoc` generates one Haskell module for each input `.proto` file:
+  * `gen/Server_protos.hs`
+and one Haskell module for each message or enum:
+  * `gen/Server_protos/Foo.hs`
+  * `gen/Server_protos/Bar.hs`
 
 = Packages =
 
