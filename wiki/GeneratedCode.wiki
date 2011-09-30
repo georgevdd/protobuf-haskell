@@ -128,6 +128,7 @@ Given a message with an extension range:
 message Foo {
   extensions 100 to 199;
 }
+}}}
 
 `hprotoc` will declare `Foo` an instance of the type class [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:ExtendMessage Text.ProtocolBuffers.Extensions.ExtendMessage].
 
