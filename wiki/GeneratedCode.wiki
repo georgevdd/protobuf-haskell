@@ -32,12 +32,7 @@ Each field declared in a message has a label, a type and a name. Each correspond
 
 A generated Haskell record field has a type based on both the source type and the source label, as described by the following two tables:
 
-|| Source Label || Haskell Type ||
-|| required || a ||
-|| optional || Maybe a ||
-|| repeated || Seq a ||
-
-|| Source Type || Haskell Type ||
+|| *Field Type* || *Haskell Type* ||
 || double || Double ||
 || float || Float ||
 || int32 || Int32 ||
@@ -54,13 +49,18 @@ A generated Haskell record field has a type based on both the source type and th
 || string || Utf8 ||
 || bytes || ByteString ||
 
+|| *Field Label* || *Haskell Type* ||
+|| required || a ||
+|| optional || Maybe a ||
+|| repeated || Seq a ||
+
 == Field Names ==
 
 A Haskell field name is the same as the source field name, except where that name is a Haskell keyword, in which case `'` is appended.
 
 == Examples ==
 
-|| Source Field || Haskell Field || 
+|| *Field* || *Haskell Field* || 
 || `optional fixed64 hash` || `Maybe Word32 :: hash` ||
 || `required bytes blob` || `blob :: ByteString` ||
 || `repeated string instance` || `instance' :: Seq Utf8 ||
