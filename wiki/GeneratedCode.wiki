@@ -119,7 +119,7 @@ These rules ensure that the result is a valid Haskell name for a value.
 
 == Enumeration Names ==
 
-Enumeration names are generated in the same way as [#MessageNames message names].
+Enumeration names are generated in the same way as [#Message_Names message names].
 
 = Extensions =
 
