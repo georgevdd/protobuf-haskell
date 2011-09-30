@@ -60,6 +60,13 @@ hprotoc generates a data type `Foo` with a single record-style constructor. `Foo
   * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:GPB Text.ProtocolBuffers.Extensions.GPB] (a convenient shorthand for all the above type classes);
   * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Reflections.html#t:ReflectDescriptor Text.ProtocolBuffers.Reflections.ReflectDescriptor] (allowing reflection of the structure of the data type, including the tag numbers of its fields).
 
+== Message Names ==
+
+A Haskell data type name is the same as the source message name, except:
+  * if the first character of the name is alphabetic then it is forced to upper case;
+  * if the first character of the name is an underscore then it is replaced with `U'`.
+These rules ensure that the result is a valid Haskell name for a type.
+
 = Fields =
 
 Each field declared in a message has a label, a type and a name. Each corresponding Haskell field has a type and a name.
