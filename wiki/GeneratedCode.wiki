@@ -89,7 +89,7 @@ These rules ensure that the result is a valid Haskell name for a value.
 
 == Examples ==
 
-|| *Field* || *Haskell Field* || 
+|| *Field Label and Type* || *Haskell Field Type* || 
 || `required bytes blob` || `blob :: ByteString` ||
 || `optional fixed64 hash` || `hash :: Maybe Word32` ||
 || `repeated string instance` || `instance' :: Seq Utf8` ||
