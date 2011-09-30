@@ -26,15 +26,44 @@ hprotoc generates a data type `Foo` with a single record-style constructor. `Foo
 
 = Fields =
 
-Each field declared in a message has a label, a type and a name. The corresponding generated Haskell record field has a type based on the source type and label, as described by the following two tables:
+Each field declared in a message has a label, a type and a name. Each corresponding Haskell field has a type and a name.
 
-|| Source Label || Haskell Type Constructor ||
+== Field Types ==
+
+A generated Haskell record field has a type based on both the source type and the source label, as described by the following two tables:
+
+|| Source Label || Haskell Type ||
 || required || a ||
 || optional || Maybe a ||
 || repeated || Seq a ||
 
 || Source Type || Haskell Type ||
+|| double || Double ||
+|| float || Float ||
+|| int32 || Int32 ||
+|| int64 || Int64 ||
+|| uint32 || Word32 ||
+|| uint64 || Word64 ||
+|| sint32 || Int32 ||
+|| sint64 || Int64 ||
+|| fixed32 || Word32 ||
+|| fixed64 || Word64 ||
+|| sfixed32 || Int32 ||
+|| sfixed64 || Int64 ||
+|| bool || Bool ||
 || string || Utf8 ||
+|| bytes || ByteString ||
+
+== Field Names ==
+
+A Haskell field name is the same as the source field name, except where that name is a Haskell keyword, in which case `'` is appended.
+
+== Examples ==
+
+|| Source Field || Haskell Field || 
+|| `optional fixed64 hash` || `Maybe Word32 :: hash` ||
+|| `required bytes blob` || `blob :: ByteString` ||
+|| `repeated string instance` || `instance' :: Seq Utf8 ||
 
 = Enumerations =
 
