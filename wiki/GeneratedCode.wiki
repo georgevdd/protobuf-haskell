@@ -61,8 +61,8 @@ A Haskell field name is the same as the source field name, except where that nam
 == Examples ==
 
 || *Field* || *Haskell Field* || 
-|| `optional fixed64 hash` || `Maybe Word32 :: hash` ||
 || `required bytes blob` || `blob :: ByteString` ||
+|| `optional fixed64 hash` || `hash :: Maybe Word32` ||
 || `repeated string instance` || `instance' :: Seq Utf8` ||
 
 = Enumerations =
