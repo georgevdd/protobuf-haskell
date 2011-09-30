@@ -48,7 +48,9 @@ Given a message declaration:
 message Foo {}
 }}}
 
-hprotoc generates a data type `Foo` with a single record-style constructor. `Foo` is a member of the following standard type classes:
+hprotoc generates a module `ModulePrefix.ProtoPackage.Foo`, where `ModulePrefix` is the prefix given with `--prefix` (if any) and `ProtoPackage` is derived from the `package` declaration (if any).
+
+The module contains a data type `Foo`, with a single record-style constructor whose fields correspond to the fields of the source message. `Foo` is a member of the following standard type classes:
   * `Show`;
   * `Eq`;
   * `Ord`;
