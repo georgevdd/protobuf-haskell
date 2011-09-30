@@ -123,11 +123,17 @@ Enumeration names are generated in the same way as [#Message_Names message names
 
 = Extensions =
 
-If a message `Foo` extends another message:
+Extensions can be declared nested inside of another type. For example, a common pattern is to do something like this:
 {{{
-(TODO)
+message Baz {
+  extend Foo {
+    optional Baz foo_ext = 124;
+  }
+}
 }}}
-then `Foo` is an instance of one more type class:
+In this case, the extension key `foo_ext` is declared in the module for `Baz`.
+
+Additionally `Baz` is an instance of one more type class:
   * [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:MessageAPI Text.ProtocolBuffers.Extensions.MessageAPI].
 
 
