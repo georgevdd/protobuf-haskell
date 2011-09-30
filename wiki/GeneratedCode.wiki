@@ -123,6 +123,14 @@ Enumeration names are generated in the same way as [#Message_Names message names
 
 = Extensions =
 
+Given a message with an extension range:
+{{{
+message Foo {
+  extensions 100 to 199;
+}
+
+`hprotoc` will declare `Foo` an instance of the type class [http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Extensions.html#t:ExtendMessage Text.ProtocolBuffers.Extensions.ExtendMessage].
+
 Extensions can be declared nested inside of another type. For example, a common pattern is to do something like this:
 {{{
 message Baz {
