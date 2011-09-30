@@ -31,10 +31,10 @@ hprotoc \
 }}}
 
 `hprotoc` generates one Haskell module for each input `.proto` file:
-  * `gen/Server_protos.hs`
+  * `gen/MyProtos/Server_protos.hs`
 and one Haskell module for each message or enum:
-  * `gen/Server_protos/Foo.hs`
-  * `gen/Server_protos/Bar.hs`
+  * `gen/MyProtos/Server_protos/Foo.hs`
+  * `gen/MyProtos/Server_protos/Bar.hs`
 
 = Packages =
 
