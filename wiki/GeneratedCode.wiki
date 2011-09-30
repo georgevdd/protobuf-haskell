@@ -117,6 +117,10 @@ These rules ensure that the result is a valid Haskell name for a value.
 
 = Enumerations =
 
+== Enumeration Names ==
+
+Enumeration names are generated in the same way as [#MessageNames message names].
+
 = Extensions =
 
 If a message `Foo` extends another message:
