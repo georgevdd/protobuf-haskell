@@ -4,6 +4,22 @@
 
 = Compiler Invocation =
 
+Suppose you have a file `protos/server/example.proto` that contains the following:
+
+{{{
+package server_protos;
+
+message Foo {
+  optional Bar bar = 1;
+}
+
+enum Bar {
+}
+
+}}}
+
+You invoke the compiler as follows:
+
 {{{
 hprotoc \
   --prefix=MyProtos \
