@@ -94,7 +94,8 @@ A generated Haskell record field has a type based on both the source type and th
 
 A Haskell field name is the same as the source field name, except:
   * if the name is a Haskell keyword, `'` is appended;
-  * the first letter of the name is forced to lower case.
+  * if the first character of the name is alphabetic then it is forced to lower case;
+  * if the first character of the name is an underscore then it is replaced with `u'`.
 These rules ensure that the result is a valid Haskell name for a value.
 
 == Examples ==
