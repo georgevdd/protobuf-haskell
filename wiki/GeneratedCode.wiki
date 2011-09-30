@@ -21,12 +21,12 @@ enum Bar {
 
 }}}
 
-You invoke the compiler as follows:
+Suppose then that you invoke the compiler as follows:
 
 {{{
 hprotoc \
-  --prefix=MyProtos \
   --haskell_out=gen \
+  --prefix=MyProtos \
   protos/server/example.proto
 }}}
 
@@ -35,6 +35,8 @@ hprotoc \
   * `gen/MyProtos/Server_protos/Bar.hs`
 and one Haskell module for each input `.proto` file:
   * `gen/MyProtos/Server_protos.hs`
+
+The `--haskell_out` (or `-d`) option specifies the directory below which generated modules will be created. The directory must already exist. The `--prefix` (or `-p`) option specifies a prefix for the hierarchical name of each resulting module. This is useful for avoiding collisions with existing Haskell modules.
 
 = Packages =
 
