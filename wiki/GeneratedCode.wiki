@@ -82,7 +82,10 @@ A generated Haskell record field has a type based on both the source type and th
 
 == Field Names ==
 
-A Haskell field name is the same as the source field name, except where that name is a Haskell keyword, in which case `'` is appended.
+A Haskell field name is the same as the source field name, except:
+  * if the name is a Haskell keyword, `'` is appended;
+  * the first letter of the name is forced to lower case.
+These rules ensure that the result is a valid Haskell name for a value.
 
 == Examples ==
 
@@ -90,6 +93,7 @@ A Haskell field name is the same as the source field name, except where that nam
 || `required bytes blob` || `blob :: ByteString` ||
 || `optional fixed64 hash` || `hash :: Maybe Word32` ||
 || `repeated string instance` || `instance' :: Seq Utf8` ||
+|| `optional bool CAPS` || `cAPS :: Maybe Bool` ||
 
 = Enumerations =
 
