@@ -89,7 +89,7 @@ cabal install hprotoc
 }}}
   # Now run the compiler, specifying the source directory (where your application's source code lives – the current directory is used if you don't provide a value), the destination directory (where you want the generated code to go; often the same as `$SRC_DIR`), and the path to your `.proto`. In this case, you...:
     {{{
-hprotoc -I=$SRC_DIR --haskell_out=$DST_DIR $SRC_DIR/addressbook.proto
+hprotoc -I $SRC_DIR --haskell_out $DST_DIR $SRC_DIR/addressbook.proto
 }}}
     Because you want Haskell modules, you use the `--haskell_out` option – similar options are provided for other supported languages.
 
