@@ -1,0 +1,355 @@
+# Protocol Buffer Basics: Haskell #
+
+This tutorial provides a basic Haskell programmer's introduction to working with protocol buffers.  By walking through creating a simple example application, it shows you how to
+  * Define message formats in a `.proto` file.
+  * Use the protocol buffer compiler.
+  * Use the Haskell protocol buffer API to write and read messages.
+This isn't a comprehensive guide to using protocol buffers in Haskell. For more detailed reference information, see the [Protocol Buffer Language Guide](http://code.google.com/apis/protocolbuffers/docs/proto.html), the [Haskell API Reference](http://hackage.haskell.org/package/protocol-buffers), the [Haskell Generated Code Guide](GeneratedCode.md), and the [Encoding Reference](http://code.google.com/apis/protocolbuffers/docs/encoding.html).
+
+## Why Use Protocol Buffers? ##
+
+The example we're going to use is a very simple "address book" application that can read and write people's contact details to and from a file. Each person in the address book has a name, an ID, an email address, and a contact phone number.
+
+Protocol buffers are a flexible, efficient, automated mechanism for serializing structured data such as this. The [Protocol Buffers Overview](http://code.google.com/apis/protocolbuffers/docs/overview.html) compares their advantages to those of other approaches.
+
+With protocol buffers, you write a `.proto` description of the data structure you wish to store. From that, the protocol buffer compiler creates code that implements automatic encoding and parsing of the protocol buffer data with an efficient binary format. The generated code provides representations for the fields that make up a protocol buffer and takes care of the details of reading and writing the protocol buffer as a unit. Importantly, the protocol buffer format supports the idea of extending the format over time in such a way that the code can still read data encoded with the old format.
+
+## Where to Find the Example Code ##
+
+The example code is included in the main Protocol Buffers source code package, under the "examples" directory. [Download it here](http://code.google.com/p/protobuf/downloads/).
+
+## Defining Your Protocol Format ##
+
+To create your address book application, you'll need to start with a `.proto` file. The definitions in a `.proto` file are simple: you add a message for each data structure you want to serialize, then specify a name and a type for each field in the message. Here is the `.proto` file that defines your messages, `addressbook.proto`.
+
+```
+package tutorial;
+
+option java_package = "com.example.tutorial";
+option java_outer_classname = "AddressBookProtos";
+
+message Person {
+  required string name = 1;
+  required int32 id = 2;
+  optional string email = 3;
+
+  enum PhoneType {
+    MOBILE = 0;
+    HOME = 1;
+    WORK = 2;
+  }
+
+  message PhoneNumber {
+    required string number = 1;
+    optional PhoneType type = 2 [default = HOME];
+  }
+
+  repeated PhoneNumber phone = 4;
+}
+
+message AddressBook {
+  repeated Person person = 1;
+}
+```
+
+As you can see, the syntax is similar to C++ or Java. Let's go through each part of the file and see what it does.
+
+The `.proto` file starts with a package declaration, which helps to prevent naming conflicts between different projects.
+
+After the package declaration, you can see two options that are Java-related but that are used by the Haskell code generator too: `java_package` and `java_outer_classname`. The [Java tutorial](http://code.google.com/apis/protocolbuffers/docs/javatutorial.html) explains how those options affect Java output.
+
+The Haskell code generator derives the hierarchical package prefix, under which modules will be generated, by checking in the following order whether the `.proto` file specifies:
+  1. The `java_outer_classname` option;
+  1. The `java_package` option;
+  1. The `package` declaration.
+Whichever of this is found is used to form the hierarchical prefix of each generated module, by converting it to camel case.
+
+Next, you have your message definitions. A message is just an aggregate containing a set of typed fields. Many standard simple data types are available as field types, including `bool`, `int32`, `float`, `double`, and `string`. You can also add further structure to your messages by using other message types as field types – in the above example the `Person` message contains `PhoneNumber` messages, while the `AddressBook` message contains `Person` messages. You can even define message types nested inside other messages – as you can see, the `PhoneNumber` type is defined inside `Person`. You can also define `enum` types if you want one of your fields to have one of a predefined list of values – here you want to specify that a phone number can be one of `MOBILE`, `HOME`, or `WORK`.
+
+The " = 1", " = 2" markers on each element identify the unique "tag" that field uses in the binary encoding. Tag numbers 1-15 require one less byte to encode than higher numbers, so as an optimization you can decide to use those tags for the commonly used or repeated elements, leaving tags 16 and higher for less-commonly used optional elements. Each element in a repeated field requires re-encoding the tag number, so repeated fields are particularly good candidates for this optimization.
+
+Each field must be annotated with one of the following modifiers:
+  * `required`: a value for the field must be provided, otherwise the message will be considered "uninitialized". Trying to build an uninitialized message will (TODO: fail how?). Parsing an uninitialized message will (TODO: fail how?). Other than this, a required field behaves exactly like an optional field.
+  * `optional`: the field may or may not be set. If an optional field value isn't set, a default value is used. For simple types, you can specify your own default value, as we've done for the phone number `type` in the example. Otherwise, a system default is used: zero for numeric types, the empty string for strings, false for bools. For embedded messages, the default value is always the "default instance" or "prototype" of the message, which has none of its fields set. Calling the accessor to get the value of an optional (or required) field which has not been explicitly set always returns that field's default value.
+  * `repeated`: the field may be repeated any number of times (including zero). The order of the repeated values will be preserved in the protocol buffer. Think of repeated fields as dynamically sized arrays.
+
+#### Required Is Forever ####
+You should be very careful about marking fields as `required`. If at some point you wish to stop writing or sending a required field, it will be problematic to change the field to an optional field – old readers will consider messages without this field to be incomplete and may reject or drop them unintentionally. You should consider writing application-specific custom validation routines for your buffers instead. Some engineers at Google have come to the conclusion that using `required` does more harm than good; they prefer to use only `optional` and `repeated`. However, this view is not universal.
+
+You'll find a complete guide to writing `.proto` files – including all the possible field types – in the [Protocol Buffer Language Guide](http://code.google.com/apis/protocolbuffers/docs/proto.html).
+
+## Compiling Your Protocol Buffers ##
+
+Now that you have a `.proto`, the next thing you need to do is generate the classes you'll need to read and write `AddressBook` (and hence `Person` and `PhoneNumber`) messages. To do this, you need to run the Haskell protocol buffer compiler, `hprotoc`, on your `.proto`:
+  1. If you haven't installed the compiler, do so. This can normally be done by running:
+```
+cabal install hprotoc
+```
+  1. Now run the compiler, specifying the source directory (where your application's source code lives – the current directory is used if you don't provide a value), the destination directory (where you want the generated code to go; often the same as `$SRC_DIR`), and the path to your `.proto`. In this case, you...:
+```
+hprotoc -I $SRC_DIR --haskell_out $DST_DIR $SRC_DIR/addressbook.proto
+```
+> > Because you want Haskell modules, you use the `--haskell_out` option – similar options are provided for other supported languages.
+
+This generates `AddressBookProtos.hs` in your specified destination directory, along with a directory called `AddressBookProtos` that contains a module for each message and enum declared in the input `.proto` files.
+
+## The Protocol Buffer API ##
+
+Let's look at some of the generated code and see what types and functions the compiler has created for you. If you look in `AddressBookProtos/` you can see that it contains a module for each message you specified in addressbook.proto. Each module declares a data type that you use to create instances of the corresponding message or enum.
+
+Each data type has auto-generated fields for each field of the message. The generated Haskell field name is the same as the source field name, except where that name is a Haskell keyword (such as `type`) in which case a `'` (prime, or single-quote) is appended, to avoid syntax errors.
+
+Here is the data type for the Person class:
+
+```
+data Person = Person {
+  name :: P'.Utf8,
+  id :: P'.Int32,
+  email :: P'.Maybe P'.Utf8,
+  phone :: P'.Seq AddressBookProtos.Person.PhoneNumber
+} deriving (P'.Show, P'.Eq, P'.Ord, P'.Typeable)
+```
+
+As you can see, the types used in the generated code are all imported qualified by `P'`; this ensures that there can never be a collision between the name of one of these types and the name of a generated type.
+
+Required fields are translated directly into fields of matching Haskell types. Optional fields correspond to `Maybe t`. Repeated fields become `Seq t`.
+
+For more information on exactly what fields the protocol compiler generates for any particular field definition, see the (forthcoming) Haskell generated code reference.
+
+### Enums and Nested Classes ###
+
+The generated code declares a `PhoneType` structure, in the module `AddressBookProtos.Person.PhoneType`:
+
+```
+data PhoneType = MOBILE
+               | HOME
+               | WORK
+               deriving (P'.Read, P'.Show, P'.Eq, P'.Ord, P'.Typeable)
+```
+
+Types such as this which, are generated from enum declarations in the source, are members of the `Ord`, `Bounded` and `Enum` type classes.
+
+The nested type `Person.PhoneNumber` becomes a data structure called `PhoneNumber` declared in the module `AddressBookProtos.Person.PhoneNumber`.
+
+### Creating Messages ###
+
+A message can be constructed just like any other Haskell data structure. It's often useful to use record syntax for this. For example, here's how you would create a `Person` structure:
+
+```
+john = Person {
+  AddressBookProtos.Person.id = 1234,
+  name = uFromString "John Doe",
+  email = Just $ uFromString "jdoe@example.com",
+  phone = fromList [
+    PhoneNumber {
+      number = uFromString "555-4321",
+      type' = Just HOME
+    }
+  ]
+}
+```
+
+### Standard Message Classes ###
+
+Each generated message type is in a number of type classes, including:
+
+  * `Show`, `Eq`, `Ord` and `Typeable`, for supporting common operations on records, including introspection;
+  * `Mergeable`, which defines a not-quite-`Monoid`-like interface with methods `mergeEmpty` and `mergeAppend`;
+  * `Default`, which provides an instance of the type called `defaultValue` whose fields are all (you guessed it) default values.
+
+### Parsing and Serialization ###
+
+Finally, each protocol buffer type is in the class `Wire` that supports writing and reading messages of the type using the protocol buffer [binary format](http://code.google.com/apis/protocolbuffers/docs/encoding.html). The module `Text.ProtocolBuffers.WireMessage` defines various functions for encoding and decoding messages, including:
+
+  * `messagePut :: t -> Data.ByteString.Lazy.Internal.ByteString`: serializes a message into a byte string;
+  * `messageGet :: Data.ByteString.Lazy.Internal.ByteString -> Either String (msg, Data.ByteString.Lazy.Internal.ByteString)`: parses a protocol message, giving either an error message or a successfully parsed record plus any leftover bytes from the input.
+
+## Writing a Message ##
+
+Now let's try using your protocol buffer modules. The first thing you want your address book application to be able to do is write personal details to your address book file. To do this, you need to create and populate instances of your protocol buffer types and then write them to a file.
+Here is a program which reads an `AddressBook` from a file, adds one new `Person` to it based on user input, and writes the new `AddressBook` back out to the file again.
+
+```
+module Main where
+
+import Control.Monad (when)
+import qualified Data.ByteString.Lazy as ByteString (
+       readFile, writeFile, length)
+import Data.ByteString.Lazy.UTF8 (fromString, toString)
+import Data.Sequence ((><), fromList)
+import System.Environment (getArgs, getProgName)
+import System.Directory (doesFileExist)
+import System.IO (stdout, hFlush)
+
+import Text.ProtocolBuffers.Header (defaultValue, uFromString)
+import Text.ProtocolBuffers.WireMessage (messageGet, messagePut)
+
+import AddressBookProtos.AddressBook
+import AddressBookProtos.Person
+import AddressBookProtos.Person.PhoneNumber
+import AddressBookProtos.Person.PhoneType
+
+-- | Fills in a Person message based on user input.
+promptForAddress :: IO Person
+promptForAddress = do
+  putStr "Enter person ID number: " >> hFlush stdout
+  id' <- readLn
+
+  putStr "Enter name: " >> hFlush stdout
+  name <- getLine
+
+  putStr "Enter email address (blank for none): " >> hFlush stdout
+  email_input <- getLine
+  let email = if null email_input then Nothing else Just email_input
+
+  phones <- promptForPhones []
+
+  return Person {
+    AddressBookProtos.Person.id = id',
+    name = uFromString name,
+    email = fmap uFromString $ email,
+    phone = fromList phones
+  }
+
+  where
+    promptForPhones list_so_far = do
+      putStr "Enter a phone number (or leave blank to finish): "
+      hFlush stdout
+      number <- getLine
+      if null number
+       then return $ reverse list_so_far
+       else do
+        putStr "Is this a mobile, home or work phone? " >> hFlush stdout
+        type_input <- getLine
+        let type' = case type_input of
+                      "mobile" -> Just MOBILE
+                      "home" -> Just HOME
+                      "work" -> Just WORK
+                      otherwise -> Nothing
+        when (type' == Nothing) $ putStrLn "Unknown phone type. Using default."
+        let new_number = PhoneNumber {
+          number = uFromString number,
+          type' = type'
+        }
+        promptForPhones $ new_number : list_so_far
+
+-- | Main function: Reads the entire address book from a file,
+--   adds one person based on user input, then writes it back out
+--   to the same file.
+main = do
+  args <- getArgs
+  when (length args /= 1) $ do
+    prog_name <- getProgName
+    fail $ "Usage: " ++ prog_name ++ " ADDRESS_BOOK_FILE"
+
+  let filename = head args
+  address_book_exists <- doesFileExist filename
+
+  -- Read the existing address book (if any).
+  address_book <-
+    if address_book_exists
+    then do
+      input <- ByteString.readFile filename
+      case messageGet input of
+         Right (address_book, x) | ByteString.length x == 0 ->
+             return address_book
+         Right (address_book, x) | ByteString.length x /= 0 ->
+             error $ "Failed to parse address book fully."
+         Left error_message ->
+             error $ "Failed to parse address book." ++ error_message
+    else do
+      putStrLn $ filename ++ ": File not found. Creating a new file."
+      return defaultValue
+
+  -- Add an address.
+  new_person <- promptForAddress
+  let new_address_book = address_book {
+    person = person address_book >< fromList [new_person]
+  }
+
+  -- Write the new address book out to disk
+  ByteString.writeFile filename $ messagePut new_address_book
+```
+
+## Reading a Message ##
+
+Of course, an address book wouldn't be much use if you couldn't get any information out of it! This example reads the file created by the above example and prints all the information in it.
+
+```
+module Main where
+
+import Control.Monad (when)
+import qualified Data.ByteString.Lazy as ByteString (
+       readFile, writeFile, length)
+import Data.Foldable (toList)
+import System.Environment (getArgs, getProgName)
+
+import Text.ProtocolBuffers.WireMessage (messageGet)
+
+import AddressBookProtos.AddressBook
+import AddressBookProtos.Person
+import AddressBookProtos.Person.PhoneNumber
+import AddressBookProtos.Person.PhoneType
+
+-- | Formats info about a Person.
+showPerson :: Person -> String
+showPerson p = unlines $ [
+  "Person ID: " ++ show (AddressBookProtos.Person.id p),
+  "  Name: " ++ show (name p),
+  "  E-mail address: " ++ show (email p)
+  ] ++ map showNumber (toList $ phone p)
+  where
+    showNumber (PhoneNumber number type') =
+      (case type' of
+                  Just MOBILE -> format "Mobile"
+                  Just HOME -> format "Home"
+                  Just WORK -> format "Work"
+                  otherwise -> "") ++ show number
+    format type_str = "  " ++ type_str ++ " phone #: "
+
+-- | Main function: Reads the entire address book from a file
+--   and prints all the information inside.
+main = do
+  args <- getArgs
+  when (length args /= 1) $ do
+    prog_name <- getProgName
+    fail $ "Usage: " ++ prog_name ++ " ADDRESS_BOOK_FILE"
+
+  let filename = head args
+
+  -- Reads the existing address book.
+  input <- ByteString.readFile filename
+  address_book <- case messageGet input of
+    Right (address_book, x) | ByteString.length x == 0 ->
+             return address_book
+    Right (address_book, x) | ByteString.length x /= 0 ->
+             error $ "Failed to parse address book fully."
+    Left error_message ->
+             error $ "Failed to parse address book." ++ error_message
+
+  mapM_ (putStr . showPerson) (toList $ person address_book)
+```
+
+## Extending a Protocol Buffer ##
+
+Sooner or later after you release the code that uses your protocol buffer, you will undoubtedly want to "improve" the protocol buffer's definition. If you want your new buffers to be backwards-compatible, and your old buffers to be forward-compatible – and you almost certainly do want this – then there are some rules you need to follow. In the new version of the protocol buffer:
+  * you _must not_ change the tag numbers of any existing fields.
+  * you _must not_ add or delete any required fields.
+  * you _may_ delete optional or repeated fields.
+  * you _may_ add new optional or repeated fields but you must use fresh tag numbers (i.e. tag numbers that were never used in this protocol buffer, not even by deleted fields).
+
+(There are [some exceptions](http://code.google.com/apis/protocolbuffers/docs/proto.html#updating) to these rules, but they are rarely used.)
+
+If you follow these rules, old code will happily read new messages and simply ignore any new fields. To the old code, optional fields that were deleted will simply have their default value, and deleted repeated fields will be empty. New code will also transparently read old messages. However, keep in mind that new optional fields will not be present in old messages, so you will need to either check explicitly whether they're set with `has_`, or provide a reasonable default value in your `.proto` file with `[default = value]` after the tag number. If the default value is not specified for an optional element, a type-specific default value is used instead: for strings, the default value is the empty string. For booleans, the default value is false. For numeric types, the default value is zero. Note also that if you added a new repeated field, your new code will not be able to tell whether it was left empty (by new code) or never set at all (by old code) since there is no `has_` flag for it.
+
+## Advanced Usage ##
+
+Protocol buffers have uses that go beyond simple accessors and serialization. Be sure to explore the [Haskell API reference](http://hackage.haskell.org/package/protocol-buffers) to see what else you can do with them.
+
+One key feature provided by protocol message classes is _reflection_. You can iterate over the fields of a message and manipulate their values without writing your code against any specific message type. One very useful way to use reflection is for converting protocol messages to and from other encodings, such as XML or JSON. A more advanced use of reflection might be to find differences between two messages of the same type, or to develop a sort of "regular expressions for protocol messages" in which you can write expressions that match certain message contents. If you use your imagination, it's possible to apply Protocol Buffers to a much wider range of problems than you might initially expect!
+
+Messages and enums provide reflection through membership of the `ReflectDescriptor` and `ReflectEnum` [type classes](http://hackage.haskell.org/packages/archive/protocol-buffers/latest/doc/html/Text-ProtocolBuffers-Reflections.html).
+
+## About This Tutorial ##
+
+This tutorial is a 'port' to Haskell of the [tutorials](http://code.google.com/apis/protocolbuffers/docs/tutorials.html) for languages like C++ that are available on the main Protocol Buffers site. It was produced with the permission of the author of those tutorials, but not by that author. Although I work at Google and Google technically owns this tutorial, it is not in any useful sense affiliated with the main Protocol Buffers project, and Google does not officially support the Haskell implementation of Protocol Buffers any more than it supports implementations in [other languages](http://code.google.com/p/protobuf/wiki/ThirdPartyAddOns). Any errata in this tutorial should be attributed to me, George van den Driessche.
